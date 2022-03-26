@@ -9,9 +9,18 @@ const resolvers = {
             .select('-__v -password')
             return userData;
         }
-        throw new AuthenticationError('Not logged in');
+        throw new AuthenticationError('You are not logged in');
     }
   },
+
+  Mutation: {
+    addUser: async (parent, args) => {
+      const user = await User.create(args);
+      const token = signToken(user);
+
+      return { token, user };
+    }
+  }
 };
 
 module.exports = resolvers;
