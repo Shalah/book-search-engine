@@ -5,11 +5,11 @@ const resolvers = {
   Query: {
     me: async (parent, context) => {
         if (context.user) {
-            const userData = await User.findOne({ _id: context.user._id })
+            const foundUser = await User.findOne({ _id: context.user._id })
             .select('-__v -password')
-            return userData;
+            return foundUser;
         }
-        throw new AuthenticationError('You are not logged in');
+        throw new AuthenticationError('You are not logged in!!');
     }
   },
 
@@ -19,8 +19,20 @@ const resolvers = {
       const token = signToken(user);
 
       return { token, user };
-    }
+    },
+    saveBook: async (parent, { book }, context) => {
+      if (context.user) {
+          const updatedUser = await User.findOneAndUpdate(
+              { _id: context.user._id },
+              { $addToSet: {savedBooks: book} },
+              { new: true }
+          )
+          return updatedUser;
+      }
+      throw new AuthenticationError('You have to be logged in!!')
+  },
   }
+
 };
 
 module.exports = resolvers;
